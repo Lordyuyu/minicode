@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
+
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.core.types import MemoryEntry, MemoryType
-from src.utils.embedding import cosine_similarity, normalize_vector
+from src.storage.vector_utils import vector_literal
+from src.utils.embedding import normalize_vector
 
 
 class MemoryRepository:
@@ -12,7 +16,7 @@ class MemoryRepository:
         self.session = session
 
     async def store(self, entry: MemoryEntry) -> str:
-        embedding_str = _vector_literal(entry.embedding)
+        embedding_str = vector_literal(entry.embedding)
         await self.session.execute(
             text(
                 f"""INSERT INTO memory_entries
@@ -36,7 +40,7 @@ class MemoryRepository:
     async def search_similar(
         self, query_embedding: Sequence[float], top_k: int = 5
     ) -> list[dict[str, Any]]:
-        embedding_str = _vector_literal(normalize_vector(query_embedding))
+        embedding_str = vector_literal(normalize_vector(query_embedding))
         result = await self.session.execute(
             text(
                 f"""SELECT memory_id, memory_type, task_description, outcome, procedural_pattern, timestamp,
@@ -47,7 +51,8 @@ class MemoryRepository:
             ),
             {"top_k": top_k},
         )
-        return [dict(row._mapping) for row in result.fetchall()]
+        rows = await result.fetchall()
+        return [dict(row._mapping) for row in rows]
 
     async def get_by_type(self, memory_type: MemoryType, limit: int = 20) -> list[dict[str, Any]]:
         result = await self.session.execute(
@@ -59,9 +64,5 @@ class MemoryRepository:
             ),
             {"memory_type": memory_type.value, "limit": limit},
         )
-        return [dict(row._mapping) for row in result.fetchall()]
-
-
-def _vector_literal(vec: Sequence[float]) -> str:
-    formatted = ",".join(str(v) for v in vec)
-    return f"'[{formatted}]'::vector"
+        rows = await result.fetchall()
+        return [dict(row._mapping) for row in rows]

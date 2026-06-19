@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
-from src.core.types import SkillV2, SkillCategory
+from src.core.types import SkillCategory, SkillV2
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)

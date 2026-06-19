@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from src.core.types import MemoryEntry, MemoryType
-from src.llm.deepseek_client import DeepSeekClient
 from src.engine.memory.episodic import EpisodicMemory
 from src.engine.memory.procedural import ProceduralMemory
+from src.llm.deepseek_client import DeepSeekClient
 
 
 class MemoryConsolidator:

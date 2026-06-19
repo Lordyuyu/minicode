@@ -6,6 +6,11 @@ from typing import Any
 
 from src.engine.prompt_cache.content_addressed import ContentAddressedCache
 from src.llm.deepseek_client import DeepSeekClient
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+_MAX_NOTES = 500  # bound the in-memory structured-notes store
 
 
 class PromptCacheManager:
@@ -26,20 +31,39 @@ class PromptCacheManager:
         user_prompt: str,
         messages_key: str = "",
     ) -> str:
+        """Cache-aside pattern: return cached result or compute + cache.
+
+        Cache failures are logged and treated as cache-misses (fail-open)
+        so a Redis outage never blocks the pipeline.
+        """
         key = ContentAddressedCache.make_system_prompt_key(system_prompt, user_prompt)
         if messages_key:
-            key = f"{key}:{messages_key}"
+            # Hash the extra key to avoid injection-style collisions
+            import hashlib
+            suffix = hashlib.sha256(messages_key.encode()).hexdigest()[:12]
+            key = f"{key}:{suffix}"
 
-        cached = await self._cache.get(key)
-        if cached is not None:
-            return cached
+        # Try cache read (fail-open)
+        try:
+            cached = await self._cache.get(key)
+            if cached is not None:
+                return cached
+        except Exception:
+            logger.exception("Cache read failed for key, proceeding without cache")
 
+        # Compute
         messages = [{"role": "system", "content": system_prompt}]
         if user_prompt:
             messages.append({"role": "user", "content": user_prompt})
 
         response = await self._llm.chat(messages)
-        await self._cache.set(key, response, self._max_cache_age)
+
+        # Try cache write (best-effort, fail-open)
+        try:
+            await self._cache.set(key, response, self._max_cache_age)
+        except Exception:
+            logger.exception("Cache write failed for key, continuing without caching")
+
         return response
 
     async def get_or_compute_with_summary(
@@ -54,6 +78,12 @@ class PromptCacheManager:
         return await self.get_or_compute(system_prompt, enriched_prompt)
 
     def store_structured_note(self, key: str, note: dict[str, Any]) -> None:
+        """Store a structured note with bounded in-memory retention."""
+        if len(self._notes) >= _MAX_NOTES:
+            # Evict the oldest entry by insertion order
+            oldest = next(iter(self._notes))
+            del self._notes[oldest]
+            logger.debug("Evicted oldest structured note (key={})", oldest)
         self._notes[key] = {"note": note, "timestamp": time.time()}
 
     def get_structured_note(self, key: str) -> dict[str, Any] | None:

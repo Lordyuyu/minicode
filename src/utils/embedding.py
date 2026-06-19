@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 import numpy as np
-from typing import Sequence
 
 
 def cosine_similarity(a: Sequence[float], b: Sequence[float]) -> float:

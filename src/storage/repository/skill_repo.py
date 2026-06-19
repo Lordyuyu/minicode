@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Sequence
+from collections.abc import Sequence
+from datetime import UTC, datetime
+from typing import Any
+
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.core.types import Skill, SkillCategory
+
+from src.core.types import Skill
+from src.storage.vector_utils import vector_literal
 from src.utils.embedding import normalize_vector
 
 
@@ -15,7 +19,7 @@ class SkillRepository:
 
     async def register_skill(self, skill: Skill) -> str:
         skill_id = skill.skill_id or str(uuid.uuid4())
-        embedding_str = _vector_literal(skill.embedding)
+        embedding_str = vector_literal(skill.embedding)
         await self.session.execute(
             text(
                 f"""INSERT INTO skills (skill_id, name, category, description, embedding, success_rate, invocation_count)
@@ -29,7 +33,7 @@ class SkillRepository:
                 "description": skill.description,
                 "success_rate": skill.success_rate,
                 "invocation_count": skill.invocation_count,
-                "now": datetime.now(timezone.utc),
+                "now": datetime.now(UTC),
             },
         )
         await self.session.commit()
@@ -38,7 +42,7 @@ class SkillRepository:
     async def search_similar(
         self, query_embedding: Sequence[float], top_k: int = 10
     ) -> list[dict[str, Any]]:
-        embedding_str = _vector_literal(normalize_vector(query_embedding))
+        embedding_str = vector_literal(normalize_vector(query_embedding))
         result = await self.session.execute(
             text(
                 f"""SELECT skill_id, name, category, description, success_rate, invocation_count,
@@ -49,7 +53,7 @@ class SkillRepository:
             ),
             {"top_k": top_k},
         )
-        rows = result.fetchall()
+        rows = await result.fetchall()
         return [dict(row._mapping) for row in rows]
 
     async def record_invocation(
@@ -63,8 +67,3 @@ class SkillRepository:
             {"task_id": task_id, "skill_id": skill_id, "success": success, "duration_ms": duration_ms},
         )
         await self.session.commit()
-
-
-def _vector_literal(vec: Sequence[float]) -> str:
-    formatted = ",".join(str(v) for v in vec)
-    return f"'[{formatted}]'::vector"

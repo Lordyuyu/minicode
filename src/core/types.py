@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from enum import StrEnum, auto
 from dataclasses import dataclass, field
+from enum import StrEnum, auto
 from typing import Any
 from uuid import uuid4
 

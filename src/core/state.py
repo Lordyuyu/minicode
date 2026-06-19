@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+
 from src.core.types import (
-    AgentPhase, Skill, ContextChunk, MemoryEntry,
-    PatchResult, BugReport,
+    AgentPhase,
+    BugReport,
+    ContextChunk,
+    MemoryEntry,
+    PatchResult,
+    Skill,
 )
 
 

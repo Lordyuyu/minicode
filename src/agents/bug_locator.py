@@ -2,20 +2,13 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from pathlib import Path
 
 from src.core.state import AgentState
 from src.core.types import BugReport
 from src.llm.deepseek_client import DeepSeekClient
 from src.llm.prompt_templates import build_bug_localization_prompt
-
-
-def _extract_json(text: str) -> str:
-    match = re.search(r'```(?:json)?\n(.*?)\n```', text, re.DOTALL)
-    if match:
-        return match.group(1)
-    return text.strip()
+from src.utils.text import extract_json
 
 
 class BugLocator:
@@ -31,12 +24,14 @@ class BugLocator:
         prompt = build_bug_localization_prompt(test_output, codebase_structure, relevant_files)
         try:
             response = await self._llm.chat(prompt)
-            cleaned = _extract_json(response)
+            cleaned = extract_json(response)
             raw = json.loads(cleaned)
             reports = [BugReport(**item) for item in raw]
         except Exception:
+            import traceback
+
             reports = []
-            import traceback; state.errors.append(f"BugLocator: {traceback.format_exc()}")
+            state.errors.append(f"BugLocator: {traceback.format_exc()}")
 
         state.bug_reports = reports
         return reports
@@ -59,7 +54,11 @@ class BugLocator:
             if "File" in line and ".py" in line:
                 extracted = [w for w in line.replace('"', " ").replace("'", " ").split() if w.endswith(".py")]
                 for match in extracted:
-                    abs_path = os.path.join(path, match)
+                    # Sanitize: resolve relative paths safely under codebase
+                    raw_path = os.path.normpath(os.path.join(path, match))
+                    if not raw_path.startswith(os.path.normpath(path) + os.sep) and raw_path != os.path.normpath(path):
+                        continue  # path traversal attempt
+                    abs_path = raw_path
                     if os.path.isfile(abs_path) and abs_path not in seen:
                         seen.add(abs_path)
                         try:

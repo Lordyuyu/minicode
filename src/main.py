@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-import asyncio
 import argparse
+import asyncio
 from pathlib import Path
 
-from src.config.settings import settings
-from src.utils.logger import setup_logging, get_logger
+from src.observability.tracer import setup_langsmith
 from src.orchestration.graph import MiniCodeGraph
+from src.utils.logger import get_logger, setup_logging
 
 logger = get_logger(__name__)
 
 
 async def run_pipeline(codebase_path: str, test_command: str) -> None:
     setup_logging()
+    setup_langsmith()
     logger.info("Starting MiniCode pipeline for {}", codebase_path)
 
     graph = MiniCodeGraph()
