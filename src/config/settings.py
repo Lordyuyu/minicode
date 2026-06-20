@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
     # -- LLM --
-    deepseek_api_key: str = Field(alias="DEEPSEEK_API_KEY")
+    deepseek_api_key: str = Field(default="", alias="DEEPSEEK_API_KEY")
     deepseek_model: str = Field(default="deepseek-chat", alias="DEEPSEEK_MODEL")
     deepseek_base_url: str = Field(
         default="https://api.deepseek.com/v1", alias="DEEPSEEK_BASE_URL"
@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     llm_max_retries: int = Field(default=3, alias="LLM_MAX_RETRIES")
 
     # -- Infrastructure --
-    postgres_dsn: str = Field(alias="POSTGRES_DSN")
+    postgres_dsn: str = Field(default="", alias="POSTGRES_DSN")
     redis_url: str = Field(default="redis://localhost:16379/0", alias="REDIS_URL")
 
     # -- MiniCode --

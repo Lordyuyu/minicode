@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -62,5 +62,7 @@ async def test_verification_node():
 
 @pytest.mark.asyncio
 async def test_full_graph_creation():
-    graph = MiniCodeGraph()
-    assert graph.app is not None
+    with patch("src.orchestration.graph.DeepSeekClient") as mock_llm:
+        mock_llm.return_value = AsyncMock()
+        graph = MiniCodeGraph()
+        assert graph.app is not None
