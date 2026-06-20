@@ -24,7 +24,11 @@ class IntentNode:
             state.identified_intent = result.get("intent", "bug_fix")
             state.metadata["intent_confidence"] = result.get("confidence", 0.0)
             state.metadata["intent_reasoning"] = result.get("reasoning", "")
-            logger.info("Identified intent: {} (confidence: {})", state.identified_intent, state.metadata["intent_confidence"])
+            logger.info(
+                "Identified intent: {} (confidence: {})",
+                state.identified_intent,
+                state.metadata["intent_confidence"],
+            )
         except Exception as e:
             logger.error("Intent recognition failed: {}", e)
             state.identified_intent = "bug_fix"

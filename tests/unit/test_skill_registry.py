@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import json
-
-import pytest
 from unittest.mock import AsyncMock
 
-from src.core.types import SkillV2, SkillCategory
+import pytest
+
+from src.core.types import SkillCategory, SkillV2
 from src.engine.skill_router.registry import SkillRegistry
 
 
@@ -26,7 +26,13 @@ async def test_registry_search_with_metadata():
     embed_fn = AsyncMock(return_value=[0.1] * 768)
     store_fn = AsyncMock()
     search_fn = AsyncMock(return_value=[
-        {"name": "bug_localizer", "category": "BUG_LOCALIZATION", "similarity": 0.9, "tags": ["bug", "error"], "applicability": "test failures"},
+        {
+            "name": "bug_localizer",
+            "category": "BUG_LOCALIZATION",
+            "similarity": 0.9,
+            "tags": ["bug", "error"],
+            "applicability": "test failures",
+        },
     ])
     registry = SkillRegistry(embed_fn, store_fn, search_fn)
     results = await registry.search("find bugs in test output", top_k=5)

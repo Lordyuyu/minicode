@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from src.core.exceptions import HumanInLoopInterrupt
+import pytest
+
 from src.core.state import AgentState
 from src.core.types import PatchResult
 from src.engine.safety.human_in_loop import HumanInLoop

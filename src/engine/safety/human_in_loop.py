@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.core.exceptions import HumanInLoopInterrupt
+from src.core.exceptions import HumanInLoopInterruptError
 from src.core.state import AgentState
 from src.engine.safety.validator import AIRiskClassifier, PatchValidator
 
@@ -57,7 +57,7 @@ class HumanInLoop:
         # Layer 3: Raise interrupt or auto-approve
         if risk_found:
             state.human_review_required = True
-            raise HumanInLoopInterrupt(
+            raise HumanInLoopInterruptError(
                 f"High-risk patch detected: {'; '.join(risk_reasons)}"
             )
 

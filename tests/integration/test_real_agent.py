@@ -9,15 +9,14 @@ are deterministic and do not require API credentials.
 from __future__ import annotations
 
 import os
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
 from src.agents.bug_locator import BugLocator
 from src.agents.patch_generator import PatchGenerator
 from src.core.state import AgentState
-from src.core.types import BugReport, PatchResult
-
+from src.core.types import BugReport
 
 # ---------------------------------------------------------------------------
 # Shared fixtures

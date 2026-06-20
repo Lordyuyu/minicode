@@ -34,7 +34,7 @@ class VerificationError(MiniCodeError):
     """Test verification failed."""
 
 
-class HumanInLoopInterrupt(MiniCodeError):
+class HumanInLoopInterruptError(MiniCodeError):
     """Waiting for human review."""
 
 

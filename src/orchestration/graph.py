@@ -63,7 +63,7 @@ class MiniCodeGraph:
         if self._app is None:
             import asyncio
             try:
-                loop = asyncio.get_running_loop()
+                _ = asyncio.get_running_loop()
                 # We're inside an async context — can't call sync init.
                 # Return a partially-built graph for test inspection.
                 self._build_nodes_sync()

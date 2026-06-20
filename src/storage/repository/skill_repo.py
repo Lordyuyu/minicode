@@ -22,9 +22,13 @@ class SkillRepository:
         embedding_str = vector_literal(skill.embedding)
         await self.session.execute(
             text(
-                f"""INSERT INTO skills (skill_id, name, category, description, embedding, success_rate, invocation_count)
-                   VALUES (:skill_id, :name, :category, :description, {embedding_str}, :success_rate, :invocation_count)
-                   ON CONFLICT (name) DO UPDATE SET embedding = {embedding_str}, updated_at = :now"""
+                f"""INSERT INTO skills
+                       (skill_id, name, category, description, embedding,
+                        success_rate, invocation_count)
+                   VALUES (:skill_id, :name, :category, :description,
+                           {embedding_str}, :success_rate, :invocation_count)
+                   ON CONFLICT (name) DO UPDATE SET
+                       embedding = {embedding_str}, updated_at = :now"""
             ),
             {
                 "skill_id": skill_id,

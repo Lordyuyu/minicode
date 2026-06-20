@@ -26,7 +26,11 @@ class SkillRegistry:
 
     async def register(self, skill: SkillV2) -> str:
         if not skill.embedding:
-            text = f"{skill.name}: {skill.description} | tags: {', '.join(skill.tags)} | applicability: {skill.applicability}"
+            text = (
+                f"{skill.name}: {skill.description} | "
+                f"tags: {', '.join(skill.tags)} | "
+                f"applicability: {skill.applicability}"
+            )
             skill.embedding = await self._embed_fn(text)
         skill_id = await self._store_fn(skill)
         logger.info("SkillRegistry: registered skill '{}' with id {}", skill.name, skill_id)

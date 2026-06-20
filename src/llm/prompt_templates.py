@@ -45,33 +45,43 @@ def build_bug_localization_prompt(
         ]
     )
 
-    few_shot = """Example 1:
-Error: "ZeroDivisionError: division by zero" in test_divide
-File: calculator.py contains:
-```python
-def divide(a, b):
-    return a / b
-```
-Output:
-```json
-[{"file_path": "calculator.py", "line_start": 1, "line_end": 2, "error_type": "ZeroDivisionError", "error_message": "division by zero when b=0", "confidence": 0.92}]
-```
-
-Example 2:
-Error: "IndexError: list index out of range" at utils.py:15
-File: utils.py line 15 is `return items[idx]`
-Output:
-```json
-[{"file_path": "utils.py", "line_start": 14, "line_end": 16, "error_type": "IndexError", "error_message": "No bounds check before list access", "confidence": 0.88}]
-```
-
-Example 3:
-Error: "KeyError: 'timeout'" at config/reader.py:5
-File: config/reader.py line 5 is `return DEFAULTS[key]`
-Output:
-```json
-[{"file_path": "config/reader.py", "line_start": 4, "line_end": 5, "error_type": "KeyError", "error_message": "Dict access without safe .get() fallback", "confidence": 0.93}]
-```"""
+    few_shot = (
+        "Example 1:\n"
+        'Error: "ZeroDivisionError: division by zero" in test_divide\n'
+        "File: calculator.py contains:\n"
+        "```python\n"
+        "def divide(a, b):\n"
+        "    return a / b\n"
+        "```\n"
+        "Output:\n"
+        "```json\n"
+        '[{"file_path": "calculator.py", "line_start": 1, "line_end": 2, '
+        '"error_type": "ZeroDivisionError", '
+        '"error_message": "division by zero when b=0", "confidence": 0.92}]\n'
+        "```\n"
+        "\n"
+        "Example 2:\n"
+        'Error: "IndexError: list index out of range" at utils.py:15\n'
+        "File: utils.py line 15 is `return items[idx]`\n"
+        "Output:\n"
+        "```json\n"
+        '[{"file_path": "utils.py", "line_start": 14, "line_end": 16, '
+        '"error_type": "IndexError", '
+        '"error_message": "No bounds check before list access", '
+        '"confidence": 0.88}]\n'
+        "```\n"
+        "\n"
+        "Example 3:\n"
+        'Error: "KeyError: \'timeout\'" at config/reader.py:5\n'
+        "File: config/reader.py line 5 is `return DEFAULTS[key]`\n"
+        "Output:\n"
+        "```json\n"
+        '[{"file_path": "config/reader.py", "line_start": 4, "line_end": 5, '
+        '"error_type": "KeyError", '
+        '"error_message": "Dict access without safe .get() fallback", '
+        '"confidence": 0.93}]\n'
+        "```"
+    )
 
     return [
         {

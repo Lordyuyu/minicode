@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
-from typing import Any
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 
 @pytest.fixture

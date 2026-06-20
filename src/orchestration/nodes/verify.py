@@ -68,7 +68,7 @@ class VerificationNode:
             stderr = stderr_bytes.decode("utf-8", errors="replace") if stderr_bytes else ""
             output = stdout + "\n" + stderr
             return proc.returncode == 0, output
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return False, f"Test timed out after {_VERIFY_TIMEOUT}s"
         except Exception as exc:
             logger.exception("Pytest execution failed")

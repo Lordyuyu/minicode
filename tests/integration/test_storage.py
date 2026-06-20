@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, patch
-from src.storage.postgres import PostgresClient
-from src.storage.repository.task_repo import TaskRepository
-from src.storage.repository.skill_repo import SkillRepository
+
+from src.core.types import MemoryEntry, MemoryType
 from src.storage.repository.memory_repo import MemoryRepository
-from src.core.types import Skill, SkillCategory, MemoryEntry, MemoryType
+from src.storage.repository.skill_repo import SkillRepository
+from src.storage.repository.task_repo import TaskRepository
 
 
 @pytest.mark.asyncio

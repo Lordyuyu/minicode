@@ -20,9 +20,11 @@ class MemoryRepository:
         await self.session.execute(
             text(
                 f"""INSERT INTO memory_entries
-                       (memory_id, memory_type, task_description, actions, outcome, embedding, procedural_pattern, timestamp)
-                   VALUES (:memory_id, :memory_type, :task_description, :actions, :outcome,
-                           {embedding_str}, :procedural_pattern, :timestamp)"""
+                       (memory_id, memory_type, task_description, actions,
+                        outcome, embedding, procedural_pattern, timestamp)
+                   VALUES (:memory_id, :memory_type, :task_description,
+                           :actions, :outcome, {embedding_str},
+                           :procedural_pattern, :timestamp)"""
             ),
             {
                 "memory_id": entry.memory_id,

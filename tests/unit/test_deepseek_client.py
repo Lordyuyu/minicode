@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, patch
+
 from src.llm.deepseek_client import DeepSeekClient
-from src.llm.tool_parser import ToolCall, parse_tool_calls
+from src.llm.tool_parser import parse_tool_calls
 
 
 @pytest.mark.asyncio

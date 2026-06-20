@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from src.core.state import AgentState
 from src.core.types import PatchResult
@@ -14,7 +15,17 @@ async def test_full_pipeline_with_mocks(sample_codebase: str):
             file_path="sample_project/calculator.py",
             original_content="def divide(a, b):\n    return a / b\n",
             patched_content="def divide(a, b):\n    if b == 0:\n        return float('inf')\n    return a / b\n",
-            diff="--- original\n+++ patched\n@@ -1 +1,3 @@\n-def divide(a, b):\n-    return a / b\n+def divide(a, b):\n+    if b == 0:\n+        return float('inf')\n+    return a / b\n",
+            diff=(
+                "--- original\n"
+                "+++ patched\n"
+                "@@ -1 +1,3 @@\n"
+                "-def divide(a, b):\n"
+                "-    return a / b\n"
+                "+def divide(a, b):\n"
+                "+    if b == 0:\n"
+                "+        return float('inf')\n"
+                "+    return a / b\n"
+            ),
             verified=True,
         )
     ]
@@ -29,8 +40,8 @@ async def test_full_pipeline_with_mocks(sample_codebase: str):
         pipeline_success=True,
     )
 
-    with patch("src.main.MiniCodeGraph") as MockGraph:
-        mock_instance = MockGraph.return_value
+    with patch("src.main.MiniCodeGraph") as mock_graph:
+        mock_instance = mock_graph.return_value
         mock_instance.run = AsyncMock(return_value=mock_state)
 
         from src.main import run_pipeline
@@ -54,8 +65,8 @@ async def test_pipeline_handles_no_bugs(sample_codebase: str):
         pipeline_success=False,
     )
 
-    with patch("src.main.MiniCodeGraph") as MockGraph:
-        mock_instance = MockGraph.return_value
+    with patch("src.main.MiniCodeGraph") as mock_graph:
+        mock_instance = mock_graph.return_value
         mock_instance.run = AsyncMock(return_value=mock_state)
 
         from src.main import run_pipeline

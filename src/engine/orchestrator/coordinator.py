@@ -13,7 +13,8 @@ from src.utils.text import extract_json
 
 logger = get_logger(__name__)
 
-_DECOMPOSE_PROMPT = """You are a task decomposition engine. Given the current agent state, break down the work into parallel sub-agent tasks.
+_DECOMPOSE_PROMPT = """You are a task decomposition engine.
+Given the current agent state, break down the work into parallel sub-agent tasks.
 
 Return a JSON array of tasks, where each task has:
 - agent_type: type of sub-agent to dispatch

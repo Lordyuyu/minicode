@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
 from src.core.types import MemoryEntry, MemoryType
+from src.engine.memory.consolidator import MemoryConsolidator
 from src.engine.memory.episodic import EpisodicMemory
 from src.engine.memory.procedural import ProceduralMemory
-from src.engine.memory.consolidator import MemoryConsolidator
 
 
 @pytest.mark.asyncio

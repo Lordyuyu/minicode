@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import json
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from src.core.state import AgentState
 from src.core.types import PermissionScope, SubAgentTask
-from src.engine.orchestrator.permission import PermissionController
 from src.engine.orchestrator.coordinator import OrchestratorAgent
+from src.engine.orchestrator.permission import PermissionController
 
 
 @pytest.mark.asyncio

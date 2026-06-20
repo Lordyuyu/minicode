@@ -60,7 +60,11 @@ class ReActLoop:
     async def run(self, state: AgentState, system_prompt: str) -> AgentState:
         messages: list[dict[str, Any]] = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Task: {state.input_codebase_path}\nCurrent phase: {state.current_phase.value}"},
+            {
+                "role": "user",
+                "content": f"Task: {state.input_codebase_path}\n"
+                f"Current phase: {state.current_phase.value}",
+            },
         ]
 
         for iteration in range(self._max_iterations):
