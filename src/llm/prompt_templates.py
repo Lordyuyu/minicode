@@ -80,6 +80,31 @@ def build_bug_localization_prompt(
         '"error_type": "KeyError", '
         '"error_message": "Dict access without safe .get() fallback", '
         '"confidence": 0.93}]\n'
+        "```\n"
+        "\n"
+        "Example 4:\n"
+        'Error: "AssertionError: assert default_val == override_val" in '
+        "test_deep_merge. Test expects override values to win, but default "
+        "values are returned instead.\n"
+        "File: merger.py contains a deep_merge that compares isinstance(dict) "
+        "for both sides, but the else branch returns the wrong source:\n"
+        "```python\n"
+        "def deep_merge(default, override):\n"
+        "    result = {}\n"
+        "    for key in default:\n"
+        "        if key in override:\n"
+        "            if isinstance(default[key], dict) and isinstance(override[key], dict):\n"
+        "                result[key] = deep_merge(default[key], override[key])\n"
+        "            else:\n"
+        "                result[key] = default[key]  # logically wrong\n"
+        "```\n"
+        "Output:\n"
+        "```json\n"
+        '[{"file_path": "merger.py", "line_start": 6, "line_end": 7, '
+        '"error_type": "LogicError", '
+        '"error_message": "else branch returns default[key] instead of '
+        'override[key] when values are not both dicts", '
+        '"confidence": 0.90}]\n'
         "```"
     )
 
