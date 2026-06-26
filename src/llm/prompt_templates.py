@@ -105,6 +105,42 @@ def build_bug_localization_prompt(
         '"error_message": "else branch returns default[key] instead of '
         'override[key] when values are not both dicts", '
         '"confidence": 0.90}]\n'
+        "```\n"
+        "\n"
+        "Example 5:\n"
+        'Error: "AssertionError: assert is_valid(-1) is False" — negative '
+        "numbers should be rejected, but the function returns True.\n"
+        "File: validator.py contains:\n"
+        "```python\n"
+        "def is_valid(x):\n"
+        "    if x > 0:\n"
+        "        return True\n"
+        "    return True  # should be False for non-positive\n"
+        "```\n"
+        "Output:\n"
+        "```json\n"
+        '[{"file_path": "validator.py", "line_start": 3, "line_end": 4, '
+        '"error_type": "LogicError", '
+        '"error_message": "Default return is True instead of False, '
+        'so negative numbers pass validation", '
+        '"confidence": 0.92}]\n'
+        "```\n"
+        "\n"
+        "Example 6:\n"
+        'Error: "AssertionError: assert result == [1, 2]" — test expects 2 '
+        "elements but function returns 3.\n"
+        "File: processor.py contains:\n"
+        "```python\n"
+        "def take_first_n(items, n):\n"
+        "    return items[:n+1]  # off-by-one: should be items[:n]\n"
+        "```\n"
+        "Output:\n"
+        "```json\n"
+        '[{"file_path": "processor.py", "line_start": 1, "line_end": 2, '
+        '"error_type": "LogicError", '
+        '"error_message": "Slice uses n+1 instead of n, returning one '
+        'extra element", '
+        '"confidence": 0.94}]\n'
         "```"
     )
 
@@ -204,6 +240,63 @@ def append_item(item, target=None):
         target = []
     target.append(item)
     return target
+```
+
+Example 5 — Inverted condition / wrong default return fix:
+Bug: is_valid(x) returns True for negative numbers; test expects False when x <= 0
+Original:
+```python
+def is_valid(x):
+    if x > 0:
+        return True
+    return True  # should be False
+```
+Patch:
+```python
+def is_valid(x):
+    if x > 0:
+        return True
+    return False
+```
+
+Example 6 — Off-by-one / wrong slice boundary fix:
+Bug: take_first_n(items, n) returns n+1 elements instead of n; test expects exactly n elements
+Original:
+```python
+def take_first_n(items, n):
+    return items[:n+1]  # off-by-one
+```
+Patch:
+```python
+def take_first_n(items, n):
+    return items[:n]
+```
+
+Example 7 — Wrong branch returns default instead of override fix:
+Bug: deep_merge returns default[key] in the else branch; test expects override[key] to win
+Original:
+```python
+def deep_merge(default, override):
+    result = {}
+    for key in default:
+        if key in override:
+            if isinstance(default[key], dict) and isinstance(override[key], dict):
+                result[key] = deep_merge(default[key], override[key])
+            else:
+                result[key] = default[key]  # BUG
+    return result
+```
+Patch:
+```python
+def deep_merge(default, override):
+    result = {}
+    for key in default:
+        if key in override:
+            if isinstance(default[key], dict) and isinstance(override[key], dict):
+                result[key] = deep_merge(default[key], override[key])
+            else:
+                result[key] = override[key]
+    return result
 ```"""
 
     return [
