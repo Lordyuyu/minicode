@@ -124,12 +124,16 @@ class PatchGenerator:
         if not diff:
             diff = self._generate_diff(original_content, patched_content)
 
-        # Backup original before overwriting
+        # Backup original before overwriting — mandatory so we can always
+        # recover if the pipeline is interrupted mid-run.
         backup_path = file_path + ".minicode.bak"
         try:
             shutil.copy2(file_path, backup_path)
         except OSError:
-            backup_path = ""  # best-effort, proceed without backup
+            logger.exception(
+                "Cannot create backup for {} — skipping patch", file_path
+            )
+            return None
 
         try:
             os.makedirs(os.path.dirname(file_path) or ".", exist_ok=True)

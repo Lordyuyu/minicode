@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import shutil
 import uuid
 from dataclasses import fields
+from pathlib import Path
 
 from langgraph.graph import END, StateGraph
 
@@ -160,6 +162,43 @@ class MiniCodeGraph:
         )
         return "intent"
 
+    # -- Recovery ----------------------------------------------------------
+
+    @staticmethod
+    def _restore_backups(codebase_path: str) -> int:
+        """Scan *codebase_path* for ``*.minicode.bak`` files and restore them.
+
+        This handles the case where a previous pipeline run was killed after
+        :class:`~src.agents.patch_generator.PatchGenerator` wrote patched
+        content to disk but before :class:`VerificationNode` could run —
+        without this, the modified files would be treated as the baseline on
+        the next run.
+
+        Returns the number of files restored.
+        """
+        root = Path(codebase_path)
+        restored = 0
+        for backup in root.rglob("*.minicode.bak"):
+            original = Path(str(backup)[: -len(".minicode.bak")])
+            try:
+                shutil.copy2(str(backup), str(original))
+                backup.unlink()
+                logger.info(
+                    "Restored backup: {} -> {}", backup.name, original
+                )
+                restored += 1
+            except OSError:
+                logger.exception(
+                    "Failed to restore backup: {}", backup
+                )
+        if restored > 0:
+            logger.warning(
+                "Restored {} backup file(s) left over from a previous "
+                "interrupted run — codebase is now clean",
+                restored,
+            )
+        return restored
+
     # -- Run --------------------------------------------------------------
 
     async def run(
@@ -170,6 +209,10 @@ class MiniCodeGraph:
     ) -> AgentState:
         await _ensure_initialized()
         self._build_nodes()
+
+        # Recover any leftover patches from an interrupted previous run
+        # so the codebase is clean before we start.
+        self._restore_backups(input_codebase_path)
 
         initial_state = AgentState(
             task_id=str(uuid.uuid4()),
